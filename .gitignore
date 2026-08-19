@@ -12,3 +12,5 @@ venv/
 .DS_Store
 .pytest_cache/
 .coverage
+VULNS.md
+instance/
