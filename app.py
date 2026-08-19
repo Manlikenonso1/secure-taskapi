@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -26,7 +26,14 @@ def get_tasks():
     tasks = Task.query.all()
     return {"tasks": [task.to_dict() for task in tasks]}
 
-
+@app.route("/tasks", methods=["POST"])
+def create_task():
+    data = request.get_json()
+    task = Task(title=data["title"])
+    db.session.add(task)
+    db.session.commit()
+    return task.to_dict(), 201
+    
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
