@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash   
+from werkzeug.security import generate_password_hash
+from sqlalchemy import text   
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
@@ -70,6 +71,20 @@ def register():
     db.session.add(user)
     db.session.commit()
     return {"message": "User registered"}, 201
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
+
+    # DELIBERATELY VULNERABLE: string-formatted SQL 
+    query = text(f"SELECT * FROM user WHERE username = '{username}'")
+    result = db.session.execute(query).fetchone()
+
+    if result:
+        return {"message": f"Welcome, {username}"}
+    return {"message": "Invalid credentials"}, 401
 
 
 if __name__ == "__main__":
